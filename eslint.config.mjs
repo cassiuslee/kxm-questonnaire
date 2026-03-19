@@ -3,16 +3,11 @@ import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescri
 import prettierConfig from '@vue/eslint-config-prettier'
 
 export default defineConfigWithVueTs(
-  // Vue 3 基础规则（等价于你原来的 plugin:vue/vue3-essential）
   ...pluginVue.configs['flat/essential'],
-
-  // TypeScript 推荐规则
   vueTsConfigs.recommended,
-
-  // 你的自定义配置
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx,vue}'],
-
+    ignores: ['dist/**', 'node_modules/**', 'unpackage/**', '.hbuilderx/**'],
     languageOptions: {
       ecmaVersion: 'latest',
       globals: {
@@ -29,25 +24,12 @@ export default defineConfigWithVueTs(
         AnyObject: 'readonly',
       },
     },
-
     rules: {
-      'prettier/prettier': [
-        'warn',
-        {
-          singleQuote: true,
-          semi: false,
-          printWidth: 100,
-          trailingComma: 'all',
-          endOfLine: 'auto',
-        },
-      ],
       'vue/multi-word-component-names': 'off',
       'vue/no-setup-props-destructure': 'off',
       'vue/no-deprecated-html-element-is': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
     },
   },
-
-  // 放最后，避免和 Prettier 冲突
   prettierConfig,
 )
