@@ -1,7 +1,7 @@
 // src/utils/http.ts
 
 // 请求基地址
-const baseURL = 'https://pcapi-xiaotuxian-front-devtest.itheima.net'
+const baseURL = 'https://dimp.eterni.cn'
 
 // 拦截器配置
 const httpInterceptor = {
@@ -16,14 +16,17 @@ const httpInterceptor = {
     // 3. 添加小程序端请求头标识
     options.header = {
       'source-client': 'h5',
+      Authorization: 'operationsCenter::815e711a0eeb4250819a22f1c6f3fe31',
+      YmDate: '20260322',
+      UserKey: '5197097203663046',
       ...options.header,
     }
     // 4. 添加 token 请求头标识
-    const memberStore = useMemberStore()
-    const token = memberStore.profile?.token
-    if (token) {
-      options.header.Authorization = token
-    }
+    // const memberStore = useMemberStore()
+    // const token = memberStore.profile?.token
+    // if (token) {
+    //   options.header.Authorization = token
+    // }
   },
 }
 
@@ -48,7 +51,7 @@ uni.addInterceptor('uploadFile', httpInterceptor)
 type Data<T> = {
   code: string
   msg: string
-  result: T
+  data: T
 }
 // 2.2 添加类型，支持泛型
 export const http = <T>(options: UniApp.RequestOptions) => {
@@ -62,12 +65,6 @@ export const http = <T>(options: UniApp.RequestOptions) => {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           // 2.1 提取核心数据 res.data
           resolve(res.data as Data<T>)
-        } else if (res.statusCode === 401) {
-          // 401错误  -> 清理用户信息，跳转到登录页
-          const memberStore = useMemberStore()
-          memberStore.clearProfile()
-          uni.navigateTo({ url: '/pages/login/login' })
-          reject(res)
         } else {
           // 其他错误 -> 根据后端错误信息轻提示
           uni.showToast({

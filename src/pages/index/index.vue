@@ -127,7 +127,8 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onShow } from '@dcloudio/uni-app'
+import { postSubmitAPI } from '@/services/submit'
 
 interface SurveyForm {
   managerKnown: string
@@ -140,31 +141,41 @@ interface SurveyForm {
 
 const companyName = ref('')
 const mobile = ref('')
+const readQueryFromUrl = () => {
+  // #ifdef H5
+  const url = new URL(window.location.href)
+  companyName.value = decodeName(url.searchParams.get('p1') || '')[0]
+  mobile.value = url.searchParams.get('p2') || ''
+  // console.log(companyName.value)
+  // console.log(mobile.value)
 
-function decodeName(str: string) {
-  return decodeURIComponent(escape(atob(str)))
+  // #endif
+}
+
+function decodeName(base64: string): string {
+  return new TextDecoder().decode(Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)))
 }
 const submitting = ref(false)
 
 const managerOptions = [
-  { label: '赵茂华', value: '1' },
-  { label: '贾向勇', value: '2' },
-  { label: '王永江', value: '3' },
-  { label: '华渊', value: '4' },
-  { label: '黄才润', value: '5' },
-  { label: '不知道', value: '6' },
+  { label: '赵茂华', value: '赵茂华' },
+  { label: '贾向勇', value: '贾向勇' },
+  { label: '王永江', value: '王永江' },
+  { label: '华渊', value: '华渊' },
+  { label: '黄才润', value: '黄才润' },
+  { label: '不知道', value: '不知道' },
 ]
 
 const channelOptions = [
-  { label: '能', value: 'yes' },
-  { label: '不知道找谁', value: 'no_channel' },
+  { label: '能', value: '能' },
+  { label: '不知道找谁', value: '不知道找谁' },
 ]
 
 const marketOptions = [
-  { label: '旧改市场', value: 'old_renovation' },
-  { label: '乡村市场', value: 'rural' },
-  { label: '工头模式', value: 'contractor' },
-  { label: '经销商独家经营模式', value: 'exclusive_distributor' },
+  { label: '旧改市场', value: '旧改市场' },
+  { label: '乡村市场', value: '乡村市场' },
+  { label: '工头模式', value: '工头模式' },
+  { label: '经销商独家经营模式', value: '经销商独家经营模式' },
 ]
 
 const form = reactive<SurveyForm>({
@@ -231,7 +242,17 @@ const validateForm = () => {
   return true
 }
 
+// function formatDateTime(date: Date = new Date()) {
+//   const pad = (n: number) => n.toString().padStart(2, '0')
+
+//   return (
+//     `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
+//     `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+//   )
+// }
+
 const buildPayload = () => ({
+  mobile: mobile.value,
   ...form,
   submittedAt: Date.now(),
 })
@@ -251,7 +272,6 @@ const handleSubmit = async () => {
   try {
     submitting.value = true
     const payload = buildPayload()
-    console.log(payload)
 
     // TODO: 替换为你的真实接口地址
     // await uni.request({
@@ -259,15 +279,14 @@ const handleSubmit = async () => {
     //   method: 'POST',
     //   data: payload,
     // })
+    const result = await postSubmitAPI(payload)
+    console.log(result)
 
-    console.log('survey submit payload:', payload)
     const fullUrl = window.location.href
 
     uni.showToast({ title: '提交成功', icon: 'success' })
     setTimeout(() => {
-      // resetForm()
       uni.redirectTo({
-        // url: '/pages/success/success',
         url: `/pages/success/success?from=${encodeURIComponent(fullUrl)}`,
       })
     }, 300)
@@ -279,9 +298,8 @@ const handleSubmit = async () => {
   }
 }
 
-onLoad((options) => {
-  companyName.value = decodeName(options.p1 || '')[0]
-  mobile.value = options.p2 || ''
+onShow(() => {
+  readQueryFromUrl()
 })
 </script>
 
