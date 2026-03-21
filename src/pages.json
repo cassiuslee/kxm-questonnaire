@@ -1,25 +1,31 @@
 {
-  "easycom": {
-    "autoscan": true,
-    "custom": {
-      // uni-ui 规则如下配置  // [!code ++]
-      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue" // [!code ++]
-    }
-  },
-  "pages": [
-    //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-    {
-      "path": "pages/index/index",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "艺涂泥春季回访问卷"
-      }
-    }
-  ],
-  "globalStyle": {
-    "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "uni-app",
-    "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8"
-  }
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			// uni-ui 规则如下配置  // [!code ++]
+			"^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue" // [!code ++]
+		}
+	},
+	"pages": [
+		//pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "艺涂泥春季回访问卷"
+			}
+		},
+		{
+			"path": "pages/success/success",
+			"style": {
+				"navigationBarTitleText": "提交成功"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	}
 }

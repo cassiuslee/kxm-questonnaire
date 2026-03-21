@@ -251,6 +251,7 @@ const handleSubmit = async () => {
   try {
     submitting.value = true
     const payload = buildPayload()
+    console.log(payload)
 
     // TODO: 替换为你的真实接口地址
     // await uni.request({
