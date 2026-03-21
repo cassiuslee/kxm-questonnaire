@@ -261,10 +261,15 @@ const handleSubmit = async () => {
     // })
 
     console.log('survey submit payload:', payload)
+    const fullUrl = window.location.href
 
     uni.showToast({ title: '提交成功', icon: 'success' })
     setTimeout(() => {
-      resetForm()
+      // resetForm()
+      uni.redirectTo({
+        // url: '/pages/success/success',
+        url: `/pages/success/success?from=${encodeURIComponent(fullUrl)}`,
+      })
     }, 300)
   } catch (error) {
     console.error(error)
