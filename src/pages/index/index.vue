@@ -1,28 +1,31 @@
 <template>
   <view class="page">
-    <view class="header-fixed">
-      <view class="hero">
-        <view class="hero-badge">经销商调研</view>
-        <view class="hero-title">合作服务回访问卷</view>
-        <view class="hero-desc">
-          {{
-            companyName
-          }}总您好！为进一步提升我们的合作质量与服务水平，更好地支持您的经营发展，我们特意开展本次经销商调研。您是我们非常重视的合作伙伴，每一条意见和建议对我们都至关重要。麻烦您抽空填写这份问卷，我们将认真倾听、持续优化，全力为您提供更优质、更高效的服务。
-        </view>
-      </view>
-
-      <view class="progress-card">
-        <view class="progress-header">
-          <text class="progress-title">填写进度</text>
-          <text class="progress-value">{{ completedCount }}/{{ totalCount }}</text>
-        </view>
-        <view class="progress-track">
-          <view class="progress-bar" :style="{ width: `${progressPercent}%` }"></view>
-        </view>
-      </view>
-    </view>
-
     <scroll-view scroll-y class="page-scroll">
+      <view class="header-fixed">
+        <view class="hero">
+          <view class="hero-badge">
+            <text>经销商调研</text>
+            <image src="/static/logo.png" class="badge-logo" mode="heightFix" />
+          </view>
+          <view class="hero-title">合作服务回访问卷</view>
+          <view class="hero-desc">
+            {{
+              companyName
+            }}总您好！为进一步提升我们的合作质量与服务水平，更好地支持您的经营发展，我们特意开展本次经销商调研。您是我们非常重视的合作伙伴，每一条意见和建议对我们都至关重要。麻烦您抽空填写这份问卷，我们将认真倾听、持续优化，全力为您提供更优质、更高效的服务。
+          </view>
+        </view>
+
+        <view class="progress-card">
+          <view class="progress-header">
+            <text class="progress-title">填写进度</text>
+            <text class="progress-value">{{ completedCount }}/{{ totalCount }}</text>
+          </view>
+          <view class="progress-track">
+            <view class="progress-bar" :style="{ width: `${progressPercent}%` }"></view>
+          </view>
+        </view>
+      </view>
+
       <view class="question-card">
         <view class="question-index">Q1</view>
         <view class="question-title">您知道负责您的市场区域经理是谁吗？</view>
@@ -124,6 +127,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 
 interface SurveyForm {
   managerKnown: string
@@ -134,13 +138,21 @@ interface SurveyForm {
   suggestion: string
 }
 
-const companyName = 'XX'
+const companyName = ref('')
+const mobile = ref('')
+
+function decodeName(str: string) {
+  return decodeURIComponent(escape(atob(str)))
+}
 const submitting = ref(false)
 
 const managerOptions = [
-  { label: '知道，并且能联系到', value: 'known_and_contactable' },
-  { label: '知道名字，但联系不多', value: 'known_but_less_contact' },
-  { label: '不太清楚是谁', value: 'not_clear' },
+  { label: '赵茂华', value: '1' },
+  { label: '贾向勇', value: '2' },
+  { label: '王永江', value: '3' },
+  { label: '华渊', value: '4' },
+  { label: '黄才润', value: '5' },
+  { label: '不知道', value: '6' },
 ]
 
 const channelOptions = [
@@ -173,21 +185,47 @@ const completedCount = computed(() => {
 
 const progressPercent = computed(() => Math.round((completedCount.value / totalCount) * 100))
 
-const onRadioChange = (field: keyof SurveyForm, event: any) => {
+const onRadioChange = (field: keyof SurveyForm, event: unknown) => {
   form[field] = event?.detail?.value || ''
 }
 
+const getTextLength = (value: string) => value.trim().length
+
 const validateForm = () => {
   if (!form.managerKnown) {
-    uni.showToast({ title: '请完成第1题', icon: 'none' })
+    uni.showToast({ title: '请完成第1项', icon: 'none' })
     return false
   }
   if (!form.problemChannel) {
-    uni.showToast({ title: '请完成第2题', icon: 'none' })
+    uni.showToast({ title: '请完成第2项', icon: 'none' })
     return false
   }
   if (!form.advantageMarket) {
-    uni.showToast({ title: '请完成第3题', icon: 'none' })
+    uni.showToast({ title: '请完成第3项', icon: 'none' })
+    return false
+  }
+  if (!form.needHelp.trim()) {
+    uni.showToast({ title: '请完成第4项', icon: 'none' })
+    return false
+  }
+  if (getTextLength(form.needHelp) < 20) {
+    uni.showToast({ title: '第4项不少于20个字', icon: 'none' })
+    return false
+  }
+  if (!form.unsatisfied.trim()) {
+    uni.showToast({ title: '请完成第5项', icon: 'none' })
+    return false
+  }
+  if (getTextLength(form.unsatisfied) < 20) {
+    uni.showToast({ title: '第5项不少于20个字', icon: 'none' })
+    return false
+  }
+  if (!form.suggestion.trim()) {
+    uni.showToast({ title: '请完成第6项', icon: 'none' })
+    return false
+  }
+  if (getTextLength(form.suggestion) < 20) {
+    uni.showToast({ title: '第6项不少于20个字', icon: 'none' })
     return false
   }
   return true
@@ -234,6 +272,11 @@ const handleSubmit = async () => {
     submitting.value = false
   }
 }
+
+onLoad((options) => {
+  companyName.value = decodeName(options.p1 || '')[0]
+  mobile.value = options.p2 || ''
+})
 </script>
 
 <style scoped lang="scss">
@@ -244,17 +287,12 @@ const handleSubmit = async () => {
   flex-direction: column;
 }
 
-.header-fixed {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: linear-gradient(180deg, #f7f3eb 0%, #f5f7fa 100%);
-}
-
-.page-scroll {
-  flex: 1;
-  box-sizing: border-box;
-}
+// .header-fixed {
+//   position: sticky;
+//   top: 0;
+//   z-index: 10;
+//   background: linear-gradient(180deg, #f7f3eb 0%, #f5f7fa 100%);
+// }
 
 .page-scroll {
   flex: 1;
@@ -270,16 +308,23 @@ const handleSubmit = async () => {
 }
 
 .hero-badge {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* 关键：左右分开 */
+
   height: 48rpx;
   padding: 0 20rpx;
   border-radius: 999rpx;
+
   background: rgba(255, 255, 255, 0.14);
   color: #f2d08a;
   font-size: 24rpx;
+
   margin-bottom: 20rpx;
+  .badge-logo {
+    height: 50rpx;
+    width: auto;
+  }
 }
 
 .hero-title {

@@ -12,7 +12,7 @@
       "path": "pages/index/index",
       "style": {
         "navigationStyle": "custom",
-        "navigationBarTitleText": "问卷首页"
+        "navigationBarTitleText": "艺涂泥春季回访问卷"
       }
     }
   ],
