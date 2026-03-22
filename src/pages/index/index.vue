@@ -129,6 +129,7 @@
 import { computed, reactive, ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { postSubmitAPI } from '@/services/submit'
+import { postUpdateStatusAPI } from '@/services/updateStatus'
 
 interface SurveyForm {
   managerKnown: string
@@ -291,7 +292,7 @@ const handleSubmit = async () => {
   }
 }
 
-onShow(() => {
+onShow(async () => {
   readQueryFromUrl()
   if (!companyName.value || !mobile.value) {
     uni.showToast({
@@ -308,6 +309,7 @@ onShow(() => {
 
     return
   }
+  await postUpdateStatusAPI({ mobile: mobile.value })
 })
 </script>
 
