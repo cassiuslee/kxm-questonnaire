@@ -130,6 +130,7 @@ import { computed, reactive, ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { postSubmitAPI } from '@/services/submit'
 import { postUpdateStatusAPI } from '@/services/updateStatus'
+import { postUserInfoAPI } from '@/services/userInfo'
 
 interface SurveyForm {
   managerKnown: string
@@ -142,13 +143,23 @@ interface SurveyForm {
 
 const companyName = ref('')
 const mobile = ref('')
-const readQueryFromUrl = () => {
+const shareStatus = ref(0)
+const fId = ref('')
+const readQueryFromUrl = async () => {
   // #ifdef H5
   const url = new URL(window.location.href)
-  companyName.value = decodeName(url.searchParams.get('p1') || '')[0]
-  mobile.value = url.searchParams.get('p2') || ''
+  // companyName.value = decodeName(url.searchParams.get('p1') || '')[0]
+  mobile.value = url.searchParams.get('m') || ''
   // console.log(companyName.value)
   // console.log(mobile.value)
+  const result = await postUserInfoAPI({ mobile: mobile.value })
+  // console.log(result.data[0].qna_name)
+
+  if (result.data.length > 0) {
+    companyName.value = result.data[0].qna_name[0]
+    shareStatus.value = result.data[0].share_status
+    fId.value = result.data[0].f_id
+  }
 
   // #endif
 }
@@ -220,24 +231,24 @@ const validateForm = () => {
     uni.showToast({ title: '请完成第4项', icon: 'none' })
     return false
   }
-  if (getTextLength(form.needHelp) < 20) {
-    uni.showToast({ title: '第4项不少于20个字', icon: 'none' })
+  if (getTextLength(form.needHelp) < 2) {
+    uni.showToast({ title: '第4项不少于2个字', icon: 'none' })
     return false
   }
   if (!form.unsatisfied.trim()) {
     uni.showToast({ title: '请完成第5项', icon: 'none' })
     return false
   }
-  if (getTextLength(form.unsatisfied) < 20) {
-    uni.showToast({ title: '第5项不少于20个字', icon: 'none' })
+  if (getTextLength(form.unsatisfied) < 2) {
+    uni.showToast({ title: '第5项不少于2个字', icon: 'none' })
     return false
   }
   if (!form.suggestion.trim()) {
     uni.showToast({ title: '请完成第6项', icon: 'none' })
     return false
   }
-  if (getTextLength(form.suggestion) < 20) {
-    uni.showToast({ title: '第6项不少于20个字', icon: 'none' })
+  if (getTextLength(form.suggestion) < 2) {
+    uni.showToast({ title: '第6项不少于2个字', icon: 'none' })
     return false
   }
   return true
@@ -293,8 +304,8 @@ const handleSubmit = async () => {
 }
 
 onShow(async () => {
-  readQueryFromUrl()
-  if (!companyName.value || !mobile.value) {
+  await readQueryFromUrl()
+  if (!fId.value || !companyName.value) {
     uni.showToast({
       title: '分享链接错误',
       icon: 'none',
@@ -309,7 +320,9 @@ onShow(async () => {
 
     return
   }
-  await postUpdateStatusAPI({ mobile: mobile.value })
+  if (shareStatus.value == 0) {
+    await postUpdateStatusAPI({ mobile: mobile.value })
+  }
 })
 </script>
 
