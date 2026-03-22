@@ -127,7 +127,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 import { postSubmitAPI } from '@/services/submit'
 
 interface SurveyForm {
@@ -272,15 +272,8 @@ const handleSubmit = async () => {
   try {
     submitting.value = true
     const payload = buildPayload()
-
-    // TODO: 替换为你的真实接口地址
-    // await uni.request({
-    //   url: 'https://your-api.com/survey/submit',
-    //   method: 'POST',
-    //   data: payload,
-    // })
     const result = await postSubmitAPI(payload)
-    console.log(result)
+    // console.log(result)
 
     const fullUrl = window.location.href
 
@@ -300,6 +293,21 @@ const handleSubmit = async () => {
 
 onShow(() => {
   readQueryFromUrl()
+  if (!companyName.value || !mobile.value) {
+    uni.showToast({
+      title: '分享链接错误',
+      icon: 'none',
+    })
+
+    // 延迟返回或关闭
+    setTimeout(() => {
+      uni.redirectTo({
+        url: '/pages/link-error/link-error', // 或首页
+      })
+    }, 1000)
+
+    return
+  }
 })
 </script>
 
